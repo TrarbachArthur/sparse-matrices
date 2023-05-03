@@ -4,5 +4,8 @@ all:
 run:
 	./main
 
+valgrind:
+	valgrind --leak-check=full ./main
+
 clean:
 	rm main
