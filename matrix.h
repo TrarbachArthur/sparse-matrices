@@ -16,6 +16,7 @@ Node* node_create(float value, int row, int column);
 Matrix* matrix_create(int row_amt, int column_amt);
 
 void matrix_add(Matrix* matrix, float value, int row, int column);
+Node* matrix_get_index(Matrix* matrix, int row, int column);
 float matrix_get_value(Matrix* matrix, int row, int column);
 
 Matrix* matrix_sum(Matrix* m1, Matrix* m2);
