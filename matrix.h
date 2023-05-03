@@ -8,12 +8,12 @@ typedef struct node {
 } Node;
 
 typedef struct matrix {
-    int row_size, column_size;
+    int row_amt, column_amt;
     Node **rows, **columns;
 } Matrix;
 
 Node* node_create(float value, int row, int column);
-Matrix* matrix_create(int row_size, int column_size);
+Matrix* matrix_create(int row_amt, int column_amt);
 
 void matrix_add(Matrix* matrix, float value, int row, int column);
 float matrix_get_value(Matrix* matrix, int row, int column);
