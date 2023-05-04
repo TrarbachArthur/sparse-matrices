@@ -1,10 +1,10 @@
 all:
 	gcc -o main *.c
 
-run:
+run: all
 	./main
 
-valgrind:
+valgrind: all
 	valgrind --leak-check=full ./main
 
 clean:
