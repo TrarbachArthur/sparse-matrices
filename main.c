@@ -18,7 +18,7 @@ int main(void) {
     matrix_print_dense(matrix1);
     matrix_print_dense(matrix2);
 
-    Matrix* new_matrix = matrix_multiply_matrix(matrix1, matrix2);
+    Matrix* new_matrix = matrix_sum(matrix1, matrix2);
     matrix_print_dense(new_matrix);
 
     matrix_destroy(matrix1);

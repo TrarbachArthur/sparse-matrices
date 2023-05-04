@@ -79,7 +79,6 @@ void matrix_add(Matrix* matrix, float value, int row, int column) {
                 }
                 else {
                     prev->next_row = new_node;
-                    printf("Adicionando\n");
                 }
             }
             else {
@@ -120,7 +119,42 @@ float matrix_get_value(Matrix* matrix, int row, int column) {
     return node->value;
 }
 
-Matrix* matrix_sum(Matrix* m1, Matrix* m2);
+Matrix* matrix_sum(Matrix* m1, Matrix* m2) {
+    Matrix* new_matrix = matrix_create(m1->row_amt, m1->column_amt);
+
+    for (int i=0; i<m1->row_amt; i++) {
+        Node* node1 = m1->rows[i];
+        Node* node2 = m2->rows[i];
+        while (node1) {
+            if (node2) {
+                if (node1->column == node2->column) {
+                    matrix_add(new_matrix, node1->value+node2->value, i, node1->column);
+                    node1 = node1->next_row;
+                    node2 = node2->next_row;
+                }
+                else if (node1->column > node2->column) {
+                    matrix_add(new_matrix, node2->value, i, node2->column);
+                    node2 = node2->next_row;
+                }
+                else if (node1->column < node2->column) {
+                    matrix_add(new_matrix, node1->value, i, node1->column);
+                    node1 = node1->next_row;
+                }
+            }
+            else {
+                matrix_add(new_matrix, node1->value, i, node1->column);
+                node1 = node1->next_row;
+            }
+        }
+
+        while (node2) {
+            matrix_add(new_matrix, node2->value, i, node2->column);
+            node2 = node2->next_row;
+        }
+    }
+
+    return new_matrix;
+}
 Matrix* matrix_multiply_escalar(Matrix* m, float n) {
     Matrix* new_matrix = matrix_create(m->row_amt, m->column_amt);
 
