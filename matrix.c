@@ -247,7 +247,20 @@ Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2) {
 
     return new_matrix;
 }
-Matrix* matrix_transpose(Matrix* matrix);
+Matrix* matrix_transpose(Matrix* matrix) {
+    Matrix* new_matrix = matrix_create(matrix->column_amt, matrix->row_amt);
+
+    for (int i=0; i<matrix->row_amt; i++) {
+        Node* node = matrix->rows[i];
+
+        while (node) {
+            matrix_add(new_matrix, node->value, node->column, node->row);
+            node = node->next_row;
+        }
+    }
+
+    return new_matrix;
+}
 Matrix* matrix_convolution(Matrix* matrix, Matrix* kernel);
 
 void matrix_print_sparse(Matrix* matrix) {
