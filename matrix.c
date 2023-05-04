@@ -225,7 +225,27 @@ Matrix* matrix_multiply_point(Matrix* m1, Matrix* m2) {
 Matrix* matrix_swap_rows(Matrix* matrix, int row1, int row2);
 Matrix* matrix_swap_columns(Matrix* matrix, int col1, int col2);
 Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2) {
+    if (row1>=matrix->row_amt || row2>=matrix->row_amt || col1>=matrix->column_amt || col2>=matrix->column_amt) {
+        printf("Slice borders out of bounds\n");
+        return NULL;
+    }
+    if (row1 > row2 || col1 > col2) {
+        printf("Slice borders out of order\n");
+        return NULL;
+    }
+    Matrix* new_matrix = matrix_create(row2-row1+1, col2-col1+1);
 
+    for (int i=row1; i<=row2; i++) {
+        Node* node = matrix->rows[i];
+        while (node) {
+            if (node->column >= col1 && node->column <= col2) {
+                matrix_add(new_matrix, node->value, i-row1, node->column - col1);
+            }
+            node = node->next_row;
+        }
+    }
+
+    return new_matrix;
 }
 Matrix* matrix_transpose(Matrix* matrix);
 Matrix* matrix_convolution(Matrix* matrix, Matrix* kernel);
