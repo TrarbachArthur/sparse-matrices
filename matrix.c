@@ -173,7 +173,7 @@ Matrix* matrix_multiply_matrix(Matrix* m1, Matrix* m2) {
         printf("Error: can't multiply matrices of this dimensions\n");
         return NULL;
     }
-    Matrix* new_matrix = matrix_create(m1->row_amt, m1->column_amt);
+    Matrix* new_matrix = matrix_create(m1->row_amt, m2->column_amt);
 
     for (int i=0; i<m1->row_amt; i++) {
         Node* node1 = m1->rows[i];
@@ -224,7 +224,9 @@ Matrix* matrix_multiply_point(Matrix* m1, Matrix* m2) {
 }
 Matrix* matrix_swap_rows(Matrix* matrix, int row1, int row2);
 Matrix* matrix_swap_columns(Matrix* matrix, int col1, int col2);
-Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2);
+Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2) {
+
+}
 Matrix* matrix_transpose(Matrix* matrix);
 Matrix* matrix_convolution(Matrix* matrix, Matrix* kernel);
 
