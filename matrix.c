@@ -26,7 +26,7 @@ Matrix* matrix_create(int row_amt, int column_amt) {
 // No need to be inplace
 void matrix_add(Matrix* matrix, float value, int row, int column) {
     if (matrix->column_amt <= column || matrix->row_amt <= row) {
-        printf("A coluna ou linha não existe na matriz!\n");
+        printf("Line or column does not belong to the matrix\n");
         return;
     }
 
@@ -107,7 +107,7 @@ Node* matrix_get_index(Matrix* matrix, int row, int column) {
 }
 float matrix_get_value(Matrix* matrix, int row, int column) {
     if (row >= matrix->row_amt || column >= matrix->column_amt) {
-        printf("Linha ou coluna não pertence a matriz\n");
+        printf("Line or column does not belong to the matrix\n");
         exit(1);
     }
 
@@ -121,9 +121,73 @@ float matrix_get_value(Matrix* matrix, int row, int column) {
 }
 
 Matrix* matrix_sum(Matrix* m1, Matrix* m2);
-Matrix* matrix_multiply_escalar(Matrix* m, float n);
-Matrix* matrix_multiply_matrix(Matrix* m1, Matrix* m2);
-Matrix* matrix_multiply_point(Matrix* m1, Matrix* m2);
+Matrix* matrix_multiply_escalar(Matrix* m, float n) {
+    Matrix* new_matrix = matrix_create(m->row_amt, m->column_amt);
+
+    for (int i=0; i<m->row_amt; i++) {
+        Node* curr = m->rows[i];
+
+        while (curr) {
+            matrix_add(new_matrix, curr->value*n, curr->row, curr->column);
+            curr = curr->next_row;
+        }
+    }
+    return new_matrix;
+}
+Matrix* matrix_multiply_matrix(Matrix* m1, Matrix* m2) {
+    if (m1->column_amt != m2->row_amt) {
+        printf("Error: can't multiply matrices of this dimensions\n");
+        return NULL;
+    }
+    Matrix* new_matrix = matrix_create(m1->row_amt, m1->column_amt);
+
+    for (int i=0; i<m1->row_amt; i++) {
+        Node* node1 = m1->rows[i];
+        for (int j=0; j<m2->column_amt && node1; j++) {
+            Node* node2 = m2->columns[j];
+            float sum=0;
+            while (node1 && node2) {
+                if (node1->column == node2->row) {
+                    sum =+ node1->value * node2->value;
+                    node1 = node1->next_row;
+                    node2 = node2->next_column;
+                }
+                else if (node1->column > node2->row) {
+                    node2 = node2->next_column;
+                }
+                else {
+                    node1 = node1->next_row;
+                }
+            }
+            matrix_add(new_matrix, sum, i, j);
+            node1 = m1->rows[i]; // Resets the reference to the row of the first matrix
+        }
+    }
+
+    return new_matrix;
+}
+Matrix* matrix_multiply_point(Matrix* m1, Matrix* m2) {
+    Matrix* new_matrix = matrix_create(m1->row_amt, m1->column_amt);
+
+    for (int i=0; i<m1->row_amt; i++) {
+        Node* node1 = m1->rows[i];
+        Node* node2 = m2->rows[i];
+        while (node1 && node2) {
+            if (node2->column == node1->column) {
+                matrix_add(new_matrix, node1->value * node2->value, node1->row, node1->column);
+                node1 = node1->next_row;
+                node2 = node2->next_row;
+            }
+            else if (node1->column > node2->column) {
+                node2 = node2->next_row;
+            }
+            else {
+                node1 = node1->next_row;
+            }
+        }
+    }
+    return new_matrix;
+}
 Matrix* matrix_swap_rows(Matrix* matrix, int row1, int row2);
 Matrix* matrix_swap_columns(Matrix* matrix, int col1, int col2);
 Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2);
@@ -142,6 +206,7 @@ void matrix_print_sparse(Matrix* matrix) {
         }
         printf("\n");
     }
+    printf("\n");
 }
 void matrix_print_dense(Matrix* matrix) {
     for (int i=0; i<matrix->row_amt; i++) {
@@ -150,6 +215,7 @@ void matrix_print_dense(Matrix* matrix) {
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 void matrix_save_binary(Matrix* matrix, char* file_path);
@@ -159,7 +225,15 @@ void node_destroy(Node* node) {
     free(node);
 }
 void matrix_destroy(Matrix* matrix) {
-    // TO DO: FREE ALL NODES INSIDE THE MATRIX
+    for (int i=0; i<matrix->row_amt; i++) {
+        Node* node = matrix->rows[i];
+        Node* next;
+        while (node) {
+            next = node->next_row;
+            node_destroy(node);
+            node = next;
+        }
+    }
 
     free(matrix->rows);
     free(matrix->columns);
