@@ -50,6 +50,7 @@ void matrix_add(Matrix* matrix, float value, int row, int column) {
                 }
                 else {
                     prev->next_column = new_node;
+                    break;
                 }
             }
             else {
@@ -71,7 +72,7 @@ void matrix_add(Matrix* matrix, float value, int row, int column) {
         prev = NULL;
         curr = matrix->rows[row];
 
-        while (curr != NULL) {
+        while (curr) {
             if (curr->column > column) {
                 new_node->next_row = curr;
                 if (prev == NULL) {
@@ -79,6 +80,7 @@ void matrix_add(Matrix* matrix, float value, int row, int column) {
                 }
                 else {
                     prev->next_row = new_node;
+                    break;
                 }
             }
             else {
@@ -222,8 +224,43 @@ Matrix* matrix_multiply_point(Matrix* m1, Matrix* m2) {
     }
     return new_matrix;
 }
-Matrix* matrix_swap_rows(Matrix* matrix, int row1, int row2);
-Matrix* matrix_swap_columns(Matrix* matrix, int col1, int col2);
+Matrix* matrix_swap_rows(Matrix* matrix, int row1, int row2) {
+    Matrix* new_matrix = matrix_create(matrix->row_amt, matrix->column_amt);
+    int row=0;
+    for (int i=0; i<matrix->row_amt; i++) {
+        row = i;
+        if (i == row1) row = row2;
+        else if (i == row2) row = row1;
+
+        Node* node = matrix->rows[i];
+
+        while (node) {
+            matrix_add(new_matrix, node->value, row, node->column);
+            node = node->next_row;
+        }
+    }
+
+    return new_matrix;
+}
+Matrix* matrix_swap_columns(Matrix* matrix, int col1, int col2) {
+    Matrix* new_matrix = matrix_create(matrix->row_amt, matrix->column_amt);
+    int col=0;
+    for (int i=0; i<matrix->column_amt; i++) {
+        col = i;
+        if (i == col1) col = col2;
+        else if (i == col2) col = col1;
+
+        Node* node = matrix->columns[i];
+
+        while (node) {
+            printf("Adicionando %f em %d %d proximo %p\n", node->value, node->row, col, node->next_column);
+            matrix_add(new_matrix, node->value, node->row, col);
+            node = node->next_column;
+        }
+    }
+    printf("Acabou\n");
+    return new_matrix;
+}
 Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2) {
     if (row1>=matrix->row_amt || row2>=matrix->row_amt || col1>=matrix->column_amt || col2>=matrix->column_amt) {
         printf("Slice borders out of bounds\n");
