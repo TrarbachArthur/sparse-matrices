@@ -25,6 +25,7 @@ Matrix* matrix_create(int row_amt, int column_amt) {
 
 // No need to be inplace
 void matrix_add(Matrix* matrix, float value, int row, int column) {
+    if (value == 0) return;
     if (matrix->column_amt <= column || matrix->row_amt <= row) {
         printf("Line or column does not belong to the matrix\n");
         return;
@@ -324,8 +325,50 @@ void matrix_print_dense(Matrix* matrix) {
     printf("\n");
 }
 
-void matrix_save_binary(Matrix* matrix, char* file_path);
-Matrix* matrix_read_binary(char* file_path);
+void matrix_save_binary(Matrix* matrix, char* file_path) {
+    FILE* file = fopen(file_path, "wb");
+    float aux = 0;
+
+    fwrite(&matrix->row_amt, sizeof(int), 1, file);
+    fwrite(&matrix->column_amt, sizeof(int), 1, file);
+
+    for (int i=0; i<matrix->row_amt; i++) {
+        Node* node = matrix->rows[i];
+
+        while (node) {
+            fwrite(&node->value, sizeof(float), 1, file);
+            fwrite(&node->row, sizeof(int), 1, file);
+            fwrite(&node->column, sizeof(int), 1, file);
+
+            node = node->next_row;
+        }
+    }
+    fwrite(&aux, sizeof(float), 1, file);
+
+    fclose(file);
+}
+Matrix* matrix_read_binary(char* file_path) {
+    int row_amt, column_amt;
+    FILE* file = fopen(file_path, "rb");
+
+    fread(&row_amt, sizeof(float), 1, file);
+    fread(&column_amt, sizeof(float), 1, file);
+    Matrix* matrix = matrix_create(row_amt, column_amt);
+    int row, column;
+    float value;
+
+    fread(&value, sizeof(float), 1, file);
+
+    while (value != 0 && !feof(file)) {
+        fread(&row, sizeof(int), 1, file);
+        fread(&column, sizeof(int), 1, file);
+        matrix_add(matrix, value, row, column);
+        fread(&value, sizeof(float), 1, file);
+    }
+    fclose(file);
+
+    return matrix;
+}
 
 void node_destroy(Node* node) {
     free(node);
