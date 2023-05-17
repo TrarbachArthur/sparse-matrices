@@ -96,6 +96,9 @@ void matrix_add(Matrix* matrix, float value, int row, int column) {
     }
 }
 Node* matrix_get_index(Matrix* matrix, int row, int column) {
+    if (row < 0 || row > matrix->row_amt - 1) return NULL;
+    if (column < 0 || column > matrix->column_amt - 1) return NULL;
+
     Node* aux = matrix->columns[column];
 
     while (aux) {
@@ -299,7 +302,14 @@ Matrix* matrix_transpose(Matrix* matrix) {
 
     return new_matrix;
 }
-Matrix* matrix_convolution(Matrix* matrix, Matrix* kernel);
+Matrix* matrix_convolution(Matrix* matrix, Matrix* kernel) {
+    if (kernel->column_amt % 2 == 0 || kernel->row_amt % 2 == 0) {
+        printf("Unable to process a convolution with an even sized kernel\n");
+        return NULL;
+    }
+
+    
+}
 
 void matrix_print_sparse(Matrix* matrix) {
     for (int i=0; i<matrix->row_amt; i++) {
@@ -316,11 +326,30 @@ void matrix_print_sparse(Matrix* matrix) {
     printf("\n");
 }
 void matrix_print_dense(Matrix* matrix) {
-    for (int i=0; i<matrix->row_amt; i++) {
-        for (int j=0; j<matrix->column_amt; j++) {
-            printf("%.2f ", matrix_get_value(matrix, i, j));
+    // last_col represents the last empty column
+    int max_col=matrix->column_amt-1, last_col=0, actual_col=0;
+    
+    for (int i = 0; i < matrix->row_amt; i++) {
+        Node* node = matrix->rows[i];
+        last_col = actual_col = 0;
+        while (node) {
+            actual_col = node->column;
+            
+            for (int i=last_col; i<actual_col; i++) {
+                printf("0.00 ");
+            }
+
+            printf("%.2f ", node->value);
+
+            node = node->next_row;
+            last_col = actual_col+1;
+        }
+
+        for (int i=last_col; i<max_col; i++) {
+            printf("0.00 ");
         }
         printf("\n");
+
     }
     printf("\n");
 }
