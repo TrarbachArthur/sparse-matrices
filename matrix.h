@@ -19,6 +19,8 @@ void matrix_add(Matrix* matrix, float value, int row, int column);
 Node* matrix_get_index(Matrix* matrix, int row, int column);
 float matrix_get_value(Matrix* matrix, int row, int column);
 
+float matrix_sum_values(Matrix* matrix);
+
 Matrix* matrix_sum(Matrix* m1, Matrix* m2);
 Matrix* matrix_multiply_escalar(Matrix* m, float n);
 Matrix* matrix_multiply_matrix(Matrix* m1, Matrix* m2);

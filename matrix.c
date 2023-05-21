@@ -125,6 +125,21 @@ float matrix_get_value(Matrix* matrix, int row, int column) {
     return node->value;
 }
 
+float matrix_sum_values(Matrix* matrix) {
+    float sum = 0;
+
+    for (int i=0; i < matrix->row_amt; i++) {
+        Node* node = matrix->rows[i];
+
+        while (node != NULL) {
+            sum += node->value;
+            node = node->next_row;
+        }
+    }
+
+    return sum;
+}
+
 Matrix* matrix_sum(Matrix* m1, Matrix* m2) {
     Matrix* new_matrix = matrix_create(m1->row_amt, m1->column_amt);
 
@@ -266,17 +281,14 @@ Matrix* matrix_swap_columns(Matrix* matrix, int col1, int col2) {
     return new_matrix;
 }
 Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2) {
-    if (row1>=matrix->row_amt || row2>=matrix->row_amt || col1>=matrix->column_amt || col2>=matrix->column_amt) {
-        printf("Slice borders out of bounds\n");
-        return NULL;
-    }
     if (row1 > row2 || col1 > col2) {
         printf("Slice borders out of order\n");
         return NULL;
     }
     Matrix* new_matrix = matrix_create(row2-row1+1, col2-col1+1);
 
-    for (int i=row1; i<=row2; i++) {
+    for (int i=row1; i<=row2 && i < matrix->row_amt; i++) {
+        if (i < 0) continue;
         Node* node = matrix->rows[i];
         while (node) {
             if (node->column >= col1 && node->column <= col2) {
@@ -308,7 +320,23 @@ Matrix* matrix_convolution(Matrix* matrix, Matrix* kernel) {
         return NULL;
     }
 
+    Matrix* new_matrix = matrix_create(matrix->row_amt, matrix->column_amt);
+
+    int line_offset = (kernel->row_amt - 1) / 2;
+    int column_offset = (kernel->column_amt - 1) / 2;
+
+    for (int i = 0; i < matrix->row_amt; i++) {
+        for (int j = 0; j < matrix->column_amt; j++) {
+            Matrix* slice = matrix_slice(matrix, i-line_offset, j-column_offset, i+line_offset, j+column_offset);
+            Matrix* conv_slice = matrix_multiply_point(slice, kernel);
+
+            matrix_add(new_matrix, matrix_sum_values(conv_slice), i, j);
+            matrix_destroy(slice);
+            matrix_destroy(conv_slice);
+        }
+    }
     
+    return new_matrix;
 }
 
 void matrix_print_sparse(Matrix* matrix) {
@@ -327,7 +355,7 @@ void matrix_print_sparse(Matrix* matrix) {
 }
 void matrix_print_dense(Matrix* matrix) {
     // last_col represents the last empty column
-    int max_col=matrix->column_amt-1, last_col=0, actual_col=0;
+    int max_col=matrix->column_amt, last_col=0, actual_col=0;
     
     for (int i = 0; i < matrix->row_amt; i++) {
         Node* node = matrix->rows[i];
