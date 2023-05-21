@@ -24,8 +24,51 @@ Matrix* matrix_create(int row_amt, int column_amt) {
 }
 
 // No need to be inplace
+void matrix_remove(Matrix* matrix, int row, int column) {
+    // removing from column
+    Node* prev = NULL, * node = NULL;
+
+    node = matrix->columns[column];
+    while (node) {
+        if (node->row == row) {
+            if (prev == NULL) {
+                matrix->columns[column] = node->next_column;
+            }
+            else {
+                prev->next_column = node->next_column;
+            }
+            break;
+        }
+        prev = node;
+        node = node->next_column;
+    }
+
+    prev = NULL;
+    node = matrix->rows[row];
+    while (node) {
+        if (node->column == column) {
+            if (prev == NULL) {
+                matrix->rows[row] = node->next_row;
+            }
+            else {
+                prev->next_row = node->next_row;
+            }
+            node_destroy(node);
+            break;
+        }
+        prev = node;
+        node = node->next_row;
+    }
+
+}
 void matrix_add(Matrix* matrix, float value, int row, int column) {
-    if (value == 0) return;
+    if (value == 0) {
+        Node* node;
+        if (node = matrix_get_index(matrix, row, column)) {
+            matrix_remove(matrix, row, column);
+        }
+        return;
+    }
     if (matrix->column_amt <= column || matrix->row_amt <= row) {
         printf("Line or column does not belong to the matrix\n");
         return;
@@ -78,6 +121,7 @@ void matrix_add(Matrix* matrix, float value, int row, int column) {
                 new_node->next_row = curr;
                 if (prev == NULL) {
                     matrix->rows[row] = new_node;
+                    break;
                 }
                 else {
                     prev->next_row = new_node;
@@ -203,7 +247,7 @@ Matrix* matrix_multiply_matrix(Matrix* m1, Matrix* m2) {
             float sum=0;
             while (node1 && node2) {
                 if (node1->column == node2->row) {
-                    sum =+ node1->value * node2->value;
+                    sum += node1->value * node2->value;
                     node1 = node1->next_row;
                     node2 = node2->next_column;
                 }
@@ -272,12 +316,10 @@ Matrix* matrix_swap_columns(Matrix* matrix, int col1, int col2) {
         Node* node = matrix->columns[i];
 
         while (node) {
-            printf("Adicionando %f em %d %d proximo %p\n", node->value, node->row, col, node->next_column);
             matrix_add(new_matrix, node->value, node->row, col);
             node = node->next_column;
         }
     }
-    printf("Acabou\n");
     return new_matrix;
 }
 Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2) {
