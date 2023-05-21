@@ -341,13 +341,11 @@ Matrix* matrix_convolution(Matrix* matrix, Matrix* kernel) {
 
 void matrix_print_sparse(Matrix* matrix) {
     for (int i=0; i<matrix->row_amt; i++) {
-        if (matrix->rows[i]) {
-            Node* curr = matrix->rows[i];
+        Node* curr = matrix->rows[i];
 
-            while (curr) {
-                printf("(%d, %d) -> %.2f ", curr->row, curr->column, curr->value);
-                curr = curr->next_row;
-            }
+        while (curr) {
+            printf("(%d, %d) -> %.2f |", curr->row, curr->column, curr->value);
+            curr = curr->next_row;
         }
         printf("\n");
     }
