@@ -3,31 +3,59 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "tests/convolution.c"
+#include "tests/swap.c"
+#include "tests/sum.c"
+#include "tests/get.c"
+#include "tests/multiply_escalar.c"
+#include "tests/multiply_matrix.c"
+#include "tests/multiply_point.c"
+#include "tests/slice.c"
+#include "tests/transpose.c"
+
 int main(void) {
-    Matrix* matrix1 = matrix_create(3, 3);
-    matrix_add(matrix1, 1, 0, 0);
-    matrix_add(matrix1, 1, 1, 1);
-    matrix_add(matrix1, 1, 2, 2);
+    int choice = 0;
+    printf("Welcome to the linked matrix tester!\n\n");
+    
+    do {
+        printf("\nThose are the option for testing the data structure:\n\n");
+        printf("1 - Get value based on the coordinates\n2 - Sum matrices\n3 - Multiply by escalar\n");
+        printf("4 - Multiply matrices\n5 - Multiply point-by-point\n6 - Swap\n7 - Slice\n8 - Transpose\n");
+        printf("9 - Convolution (keep in mind it also tests binary saving and reading)\n0 - Exit\n\n");
 
-    Matrix* matrix2 = matrix_create(3, 3);
-    matrix_add(matrix2, 7, 2, 0);
-    matrix_add(matrix2, 2, 0, 2);
-    matrix_add(matrix2, 9, 2, 2);
-    matrix_add(matrix2, 3, 1, 2);
+        printf("Please enter your choice: ");
+        scanf("%d", &choice);
 
-    matrix_print_dense(matrix1);
-    matrix_print_dense(matrix2);
-
-    Matrix* new_matrix = matrix_swap_rows(matrix1, 0, 1);
-    matrix_print_dense(new_matrix);
-    matrix_destroy(new_matrix);
-
-    new_matrix = matrix_swap_columns(matrix2, 1, 2);
-    matrix_print_dense(new_matrix);
-    matrix_destroy(new_matrix);
-
-    matrix_destroy(matrix1);
-    matrix_destroy(matrix2);
-
+        switch(choice) {
+            case 1:
+                get();
+                break;
+            case 2:
+                sum();
+                break;
+            case 3:
+                multEscalar();
+                break;
+            case 4:
+                multMatrix();
+                break;
+            case 5:
+                multPoint();
+                break;
+            case 6:
+                swap();
+                break;
+            case 7:
+                slice();
+                break;
+            case 8:
+                transpose();
+                break;
+            case 9:
+                convolution();
+                break;
+        }
+    } while (choice != 0);
+    
     return 0;
 }
