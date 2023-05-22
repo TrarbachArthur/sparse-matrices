@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// O(1) tempo contante independente dos parametros
 Node* node_create(float value, int row, int column) {
     Node* node = calloc(1, sizeof(Node));
     node->row = row;
@@ -13,6 +14,8 @@ Node* node_create(float value, int row, int column) {
 
     return node;
 }
+
+// O(1) tempo constate considerando que calloc utiliza memset
 Matrix* matrix_create(int row_amt, int column_amt) {
     Matrix* matrix = calloc(1, sizeof(Matrix));
     matrix->row_amt = row_amt;
@@ -23,7 +26,7 @@ Matrix* matrix_create(int row_amt, int column_amt) {
     return matrix;
 }
 
-// No need to be inplace
+// O(m+k) = O(n) considerando m o numero de elementos anteriores na linha e n o numero na coluna
 void matrix_remove(Matrix* matrix, int row, int column) {
     // removing from column
     Node* prev = NULL, * node = NULL;
@@ -61,6 +64,8 @@ void matrix_remove(Matrix* matrix, int row, int column) {
     }
 
 }
+
+// O(m+k) = O(n) assim como o remove
 void matrix_add(Matrix* matrix, float value, int row, int column) {
     if (value == 0) {
         Node* node;
@@ -139,6 +144,8 @@ void matrix_add(Matrix* matrix, float value, int row, int column) {
         }
     }
 }
+
+// O(n) ja que so eh necessario iterar pela linha OU coluna
 Node* matrix_get_index(Matrix* matrix, int row, int column) {
     if (row < 0 || row > matrix->row_amt - 1) return NULL;
     if (column < 0 || column > matrix->column_amt - 1) return NULL;
@@ -154,6 +161,7 @@ Node* matrix_get_index(Matrix* matrix, int row, int column) {
 
     return NULL;
 }
+// O(n) utiliza o get_index e o resto eh constante
 float matrix_get_value(Matrix* matrix, int row, int column) {
     if (row >= matrix->row_amt || column >= matrix->column_amt) {
         printf("Line or column does not belong to the matrix\n");
@@ -169,6 +177,7 @@ float matrix_get_value(Matrix* matrix, int row, int column) {
     return node->value;
 }
 
+// O(n2) necessario iterar por todos os itens da matriz
 float matrix_sum_values(Matrix* matrix) {
     float sum = 0;
 
@@ -184,6 +193,8 @@ float matrix_sum_values(Matrix* matrix) {
     return sum;
 }
 
+
+// O(2*n2) = O(n2) iterando por todos os itens de ambas as matrizes individualmente
 Matrix* matrix_sum(Matrix* m1, Matrix* m2) {
     Matrix* new_matrix = matrix_create(m1->row_amt, m1->column_amt);
 
@@ -220,6 +231,8 @@ Matrix* matrix_sum(Matrix* m1, Matrix* m2) {
 
     return new_matrix;
 }
+
+// O(n2) iterando por todos os elementos da matriz
 Matrix* matrix_multiply_escalar(Matrix* m, float n) {
     Matrix* new_matrix = matrix_create(m->row_amt, m->column_amt);
 
@@ -233,6 +246,8 @@ Matrix* matrix_multiply_escalar(Matrix* m, float n) {
     }
     return new_matrix;
 }
+
+// O(i*j*m) * O(n) = O(n4) onde i = linhas de m1 | j = colunas de m1 | k = colunas de m2 | realizando add para cada elemento
 Matrix* matrix_multiply_matrix(Matrix* m1, Matrix* m2) {
     if (m1->column_amt != m2->row_amt) {
         printf("Error: can't multiply matrices of this dimensions\n");
@@ -265,6 +280,8 @@ Matrix* matrix_multiply_matrix(Matrix* m1, Matrix* m2) {
 
     return new_matrix;
 }
+
+// O(n2) * O(n) = O(n3) iterando por todos os elementos de m1 e m2 AO MESMO TEMPO e realizando add
 Matrix* matrix_multiply_point(Matrix* m1, Matrix* m2) {
     Matrix* new_matrix = matrix_create(m1->row_amt, m1->column_amt);
 
@@ -287,6 +304,8 @@ Matrix* matrix_multiply_point(Matrix* m1, Matrix* m2) {
     }
     return new_matrix;
 }
+
+// O(n2) * O(n) = O(n3) iterando por todos os elemento da matriz e realizando add para cada um
 Matrix* matrix_swap_rows(Matrix* matrix, int row1, int row2) {
     Matrix* new_matrix = matrix_create(matrix->row_amt, matrix->column_amt);
     int row=0;
@@ -305,6 +324,8 @@ Matrix* matrix_swap_rows(Matrix* matrix, int row1, int row2) {
 
     return new_matrix;
 }
+
+// O(n3) mesmo do swap_rows
 Matrix* matrix_swap_columns(Matrix* matrix, int col1, int col2) {
     Matrix* new_matrix = matrix_create(matrix->row_amt, matrix->column_amt);
     int col=0;
@@ -322,6 +343,8 @@ Matrix* matrix_swap_columns(Matrix* matrix, int col1, int col2) {
     }
     return new_matrix;
 }
+
+// O(n) * O(n) = O(n2) iterando por todos os elementos do intervalo e realizando add
 Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2) {
     if (row1 > row2 || col1 > col2) {
         printf("Slice borders out of order\n");
@@ -336,12 +359,15 @@ Matrix* matrix_slice(Matrix* matrix, int row1, int col1, int row2, int col2) {
             if (node->column >= col1 && node->column <= col2) {
                 matrix_add(new_matrix, node->value, i-row1, node->column - col1);
             }
+            if (node->column > col2) break;
             node = node->next_row;
         }
     }
 
     return new_matrix;
 }
+
+// O(n2) * O(n) = O(n3) iterando por todos os elementos e adicionando a nova matriz
 Matrix* matrix_transpose(Matrix* matrix) {
     Matrix* new_matrix = matrix_create(matrix->column_amt, matrix->row_amt);
 
@@ -356,6 +382,9 @@ Matrix* matrix_transpose(Matrix* matrix) {
 
     return new_matrix;
 }
+
+// O(n2) * (O(n2)+O(n3)+O(n)+O(n2)+O(n2)) = O(n2) * O(n3) = O(n5)
+// Iterando por todos os elementos e realizando operacoes onde a mais custosa e a multiplicacao ponto a ponto
 Matrix* matrix_convolution(Matrix* matrix, Matrix* kernel) {
     if (kernel->column_amt % 2 == 0 || kernel->row_amt % 2 == 0) {
         printf("Unable to process a convolution with an even sized kernel\n");
@@ -381,6 +410,8 @@ Matrix* matrix_convolution(Matrix* matrix, Matrix* kernel) {
     return new_matrix;
 }
 
+
+// O(n2) iterando por todos os elementos
 void matrix_print_sparse(Matrix* matrix) {
     for (int i=0; i<matrix->row_amt; i++) {
         Node* curr = matrix->rows[i];
@@ -393,6 +424,8 @@ void matrix_print_sparse(Matrix* matrix) {
     }
     printf("\n");
 }
+
+// O(n2) iterando por todos os elementos
 void matrix_print_dense(Matrix* matrix) {
     // last_col represents the last empty column
     int max_col=matrix->column_amt, last_col=0, actual_col=0;
@@ -422,6 +455,8 @@ void matrix_print_dense(Matrix* matrix) {
     printf("\n");
 }
 
+
+// O(n2) iterando por todos os elementos
 void matrix_save_binary(Matrix* matrix, char* file_path) {
     FILE* file = fopen(file_path, "wb");
     float aux = 0;
@@ -444,6 +479,8 @@ void matrix_save_binary(Matrix* matrix, char* file_path) {
 
     fclose(file);
 }
+
+// O(n) * O(n) = O(n2) le todos os valores da matriz e realiza o add
 Matrix* matrix_read_binary(char* file_path) {
     int row_amt, column_amt;
     FILE* file = fopen(file_path, "rb");
@@ -467,9 +504,12 @@ Matrix* matrix_read_binary(char* file_path) {
     return matrix;
 }
 
+
+// O(1) tempo constante
 void node_destroy(Node* node) {
     free(node);
 }
+// O(n2) iterando por todos os elementos da matriz 
 void matrix_destroy(Matrix* matrix) {
     for (int i=0; i<matrix->row_amt; i++) {
         Node* node = matrix->rows[i];
