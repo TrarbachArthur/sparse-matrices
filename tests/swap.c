@@ -19,6 +19,7 @@ int swap() {
 */
     printf("Original matrix:\n");
     Matrix* matrix2 = matrix_create(3, 3);
+    matrix_add(matrix2, 5, 2, 0);
     matrix_add(matrix2, 7, 2, 0);
     matrix_add(matrix2, 2, 0, 2);
     matrix_add(matrix2, 9, 2, 2);

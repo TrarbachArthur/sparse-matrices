@@ -102,6 +102,11 @@ void matrix_add(Matrix* matrix, float value, int row, int column) {
                     break;
                 }
             }
+            else if (curr->row == row) {
+                curr->value = value;
+                node_destroy(new_node);
+                break;
+            }
             else {
                 if (curr->next_column == NULL) {
                     curr->next_column = new_node;
@@ -133,6 +138,7 @@ void matrix_add(Matrix* matrix, float value, int row, int column) {
                     break;
                 }
             }
+            else if (curr->column == column) break;
             else {
                 if (curr->next_row == NULL) {
                     curr->next_row = new_node;
